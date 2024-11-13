@@ -1,0 +1,36 @@
+<ion-app>
+  <ion-menu menuId="main-menu" content-id="main">
+    <ion-header>
+      <ion-toolbar color="dark">
+        <ion-title>Menu</ion-title>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content>
+      <ion-list>
+        <ion-item routerLink="sign-up" (click)="closed()">
+          <ion-icon name="home" slot="start"></ion-icon>
+          <ion-label>Inicio</ion-label>
+        </ion-item>
+        <ion-item [routerLink]="['/main/home-c']" (click)="closed()">
+          <ion-icon name="speedometer" slot="start"></ion-icon>
+          <ion-label>Conductor</ion-label>
+        </ion-item>
+        <ion-item [routerLink]="['/main/home-p']" (click)="closed()">
+          <ion-icon name="car" slot="start"></ion-icon>
+          <ion-label>Pasajero</ion-label>
+        </ion-item>
+        <ion-item [routerLink]="['/main/help']"  (click)="closed()">
+          <ion-icon name="information-circle" slot="start"></ion-icon>
+          <ion-label>Ayuda</ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-content>
+    <ion-footer>
+      <ion-button color="danger" expand="block" mode="ios" (click)="signOut()">
+        Cerrar sesión
+      </ion-button>
+    </ion-footer>
+  </ion-menu>
+  <ion-router-outlet id="main"></ion-router-outlet>
+</ion-app>
+

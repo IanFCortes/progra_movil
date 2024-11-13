@@ -1,0 +1,47 @@
+<ion-header>
+  <ion-toolbar color="dark">
+    <ion-title class="ion-text-center">Bienvenido</ion-title>
+    <ion-buttons slot="start">
+      <ion-menu-button menu="main-menu"></ion-menu-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-text-center" [fullscreen]="true">
+
+  <!-- Sección de Conductor -->
+  <ion-card class="ion-margin">
+    <ion-card-header>
+      <div class="ion-text-center">
+        <ion-icon class="carHome" color="dark" name="speedometer-outline"></ion-icon>
+      </div>
+      <ion-card-subtitle>¿Te diriges hacia DuocUC o puedes llevar a más gente?</ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content class="ion-text-justify">
+      <p>Presiona el siguiente botón si eres conductor:</p>
+      <ion-button color="dark" expand="block" shape="round" class="ion-margin-top" [routerLink]="['/main/home-c']">
+        <ion-icon slot="start" name="speedometer"></ion-icon>
+        Conductor
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Sección de Pasajero -->
+  <ion-card class="ion-margin">
+    <ion-card-header>
+      <div class="ion-text-center">
+        <ion-icon class="carHome" color="dark" name="car-sport-outline"></ion-icon>
+      </div>
+      <ion-card-subtitle>Necesitas viajar a DuocUC o a tu casa desde Duoc</ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content class="ion-text-justify">
+      <p>Presiona el siguiente botón si eres pasajero:</p>
+      <ion-button color="dark" expand="block" shape="round" class="ion-margin-top" [routerLink]="['/main/home-p']">
+        <ion-icon slot="start" name="car-sport-outline"></ion-icon>
+        Pasajero
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

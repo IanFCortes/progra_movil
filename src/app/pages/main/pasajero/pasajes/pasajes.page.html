@@ -1,0 +1,27 @@
+<ion-header>
+  <ion-toolbar color="dark">
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Pasajero</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-searchbar placeholder="¿A donde se dirije?"></ion-searchbar>
+  <ion-list>
+    <ion-item *ngFor="let v of viajes" >
+      <ion-label>
+        <ion-label>Coste: {{v.coste}}</ion-label>
+        <ion-label>Destino: {{v.destino}}</ion-label>    
+        <ion-label >Maximo de pasajeros: {{v.pasajeros}}</ion-label>
+        <ion-label >Disponibles: {{v.disponibles}}</ion-label>
+        <ion-label>Patente: {{v.patente}}</ion-label> 
+        <ion-label>Hora de salida: {{v.salida}}</ion-label> 
+      </ion-label>
+      <ion-button  color="dark" slot="end" size="small"  shape="round" (click)="presentActionSheet(v)">
+        Viajar
+      </ion-button>
+    </ion-item>
+  </ion-list>
+</ion-content>

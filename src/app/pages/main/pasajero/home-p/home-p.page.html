@@ -1,0 +1,27 @@
+<ion-header>
+  <ion-toolbar color="dark">
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Pasajero</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-text-center ion-padding">
+
+  <ion-icon class="carHomec" color="dark" name="people"></ion-icon>
+
+  <ion-button color="dark" expand="block" shape="round" class="ion-margin-top" [routerLink]="['/main/pasajes']" >
+    <ion-icon slot="start" name="create"></ion-icon>
+     Buscar Viaje
+  </ion-button>
+
+  <ion-button color="dark" expand="block" shape="round" class="ion-margin-top" [routerLink]="['/main/viaje']" >
+    <ion-icon slot="start" name="id-card-outline"></ion-icon>
+     Mis Viajes
+  </ion-button>
+
+  <ion-button color="danger" expand="block" shape="round" class="ion-margin-top last-button" [routerLink]="['/main/help']" >
+     ¿Tienes un problema?
+  </ion-button>
+</ion-content>

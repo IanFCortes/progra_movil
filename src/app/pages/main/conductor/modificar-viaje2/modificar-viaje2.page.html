@@ -1,0 +1,47 @@
+<ion-header>
+  <ion-toolbar color="dark">
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Reprogramar Viaje</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-content [fullscreen]="true">
+    <ion-card class="ion-margin">
+      <ion-card-header>
+        <ion-card-subtitle>Modificar Viaje</ion-card-subtitle>
+      </ion-card-header>
+  
+      <ion-card-content>
+        <ion-item>
+          <ion-label position="stacked">Destino</ion-label>
+          <ion-input [(ngModel)]="viajeData.destino"></ion-input>
+        </ion-item>
+  
+        <ion-item>
+          <ion-label position="stacked">Coste</ion-label>
+          <ion-input [(ngModel)]="viajeData.coste"></ion-input>
+        </ion-item>
+  
+        <ion-item>
+          <ion-label position="stacked">Hora de Salida</ion-label>
+          <ion-input [(ngModel)]="viajeData.salida"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Asientos</ion-label>
+          <ion-input [(ngModel)]="viajeData.pasajeros"></ion-input>
+        </ion-item>
+  
+        <ion-button class="ion-padding" color="success" expand="full" shape="round" (click)="guardarCambios()" >
+          Guardar Cambios
+        </ion-button>
+        
+      </ion-card-content>
+    </ion-card>
+  </ion-content>
+
+</ion-content>
