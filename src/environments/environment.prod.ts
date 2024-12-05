@@ -1,12 +1,13 @@
-export const environment = {
+/*export const environment = {
   production: true,
 
   firebaseConfig: {
-    apiKey: "AIzaSyDJz0f9B8K2HrNcMQMsIlNl3vcxU0zfNxs",
-    authDomain: "notuber-29311.firebaseapp.com",
-    projectId: "notuber-29311",
-    storageBucket: "notuber-29311.appspot.com",
-    messagingSenderId: "298420390832",
-    appId: "1:298420390832:web:5d12aa5e1b007f5447a475"
+    apiKey: "AIzaSyDOgfcMYqWt_74o2gwTuPJLTXo77kilsg0",
+    authDomain: "ians-duocdrive.firebaseapp.com",
+    projectId: "ians-duocdrive",
+    storageBucket: "ians-duocdrive.firebasestorage.app",
+    messagingSenderId: "1014587148959",
+    appId: "1:1014587148959:web:d80851cf9c3fa12855f0aa"
   }
 };
+No se usa archivo en el auth

@@ -1,8 +1,24 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { User } from 'src/app/models/user.model';
-import { FirebaseService } from 'src/app/services/firebase.service';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { initializeApp, FirebaseError, getApp, FirebaseApp } from 'firebase/app';
+import { environment } from '../../../environments/environment';
 import { UtilsService } from 'src/app/services/utils.service';
+
+let app: FirebaseApp, auth;
+
+try {
+  if (!getApp()) {  // Verifica si Firebase ya está inicializado
+    app = initializeApp(environment.firebaseConfig);
+    auth = getAuth(app);
+    console.log('Firebase inicializado correctamente');
+  } else {
+    app = getApp();
+    auth = getAuth(app);
+  }
+} catch (error: FirebaseError | any) {
+  console.error('Error al inicializar Firebase:', error.message);
+}
 
 @Component({
   selector: 'app-auth',
@@ -10,82 +26,57 @@ import { UtilsService } from 'src/app/services/utils.service';
   styleUrls: ['./auth.page.scss'],
 })
 export class AuthPage implements OnInit {
-
   form = new FormGroup({
     email: new FormControl('', [Validators.required, Validators.email]),
-    password: new FormControl('', [Validators.required])
-  })
+    password: new FormControl('', [Validators.required]),
+  });
 
-  firebaseSvc = inject(FirebaseService);
-  utilsSvc = inject(UtilsService);
+  constructor(private utilsSvc: UtilsService) {}
 
   ngOnInit() {
+    console.log('AuthPage cargado correctamente');
   }
 
   async submit() {
     if (this.form.valid) {
-
       const loading = await this.utilsSvc.loading();
       await loading.present();
 
-      this.firebaseSvc.signIn(this.form.value as User).then(res => {
+      try {
+        const userCredential = await signInWithEmailAndPassword(
+          auth,
+          this.form.value.email!,
+          this.form.value.password!
+        );
 
-        this.getUserInfo(res.user.uid);
+        this.utilsSvc.saveInLocalStorage('user', {
+          uid: userCredential.user.uid,
+          email: userCredential.user.email,
+          name: userCredential.user.displayName || 'Usuario',
+        });
 
-      }).catch(error => {
-        console.log(error);
-
-        this.utilsSvc.presentToast({
-          message: error.message,
-          duration: 3500,
-          color: 'secondary',
-          position: 'middle',
-          icon: 'alert-circle-outline'
-        })
-
-      }).finally(() => {
-        loading.dismiss();
-      })
-    }
-  }
-
-  async getUserInfo(uid: string) {
-    if (this.form.valid) {
-
-      const loading = await this.utilsSvc.loading();
-      await loading.present();
-
-      let path = `users/${uid}`;
-
-      this.firebaseSvc.getDocument(path).then((user: User) => {
-
-        this.utilsSvc.saveInLocalStorage('user', user);
         this.utilsSvc.routerLink('/main/home');
-        this.form.reset();
-
         this.utilsSvc.presentToast({
-          message: `Bienvenido ${user.name}`,
+          message: `Bienvenido ${userCredential.user.email}`,
           duration: 1500,
           color: 'success',
           position: 'middle',
-          icon: 'alert-circle-outline'
-        })
-
-      }).catch(error => {
-        console.log(error);
+          icon: 'checkmark-circle-outline',
+        });
+        this.form.reset();
+      } catch (error: any) {
+        console.error('Error de autenticación:', error.message);
 
         this.utilsSvc.presentToast({
-          message: `Credenciales Incorrectas`,
+          message: 'Credenciales incorrectas. Intente nuevamente.',
           duration: 3500,
           color: 'danger',
           position: 'middle',
-          icon: 'alert-circle-outline'
-        })
-
-      }).finally(() => {
+          icon: 'alert-circle-outline',
+        });
+      } finally {
         loading.dismiss();
-      })
+      }
     }
   }
-
 }

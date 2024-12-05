@@ -42,7 +42,15 @@ export class ViajePage implements OnInit {
     this.filteredViajes = this.viajes;
   }
   
-
+  guardarViajeEnLocalStorage(viajeId: string, ubicacion: {lat: number, lng: number}) {
+    const viaje = {
+      viajeId: viajeId,
+      email: this.user.email,
+      ubicacion: ubicacion
+    };
+  
+    localStorage.setItem(`viaje_${viajeId}`, JSON.stringify(viaje));
+  }
   getViajes() {
     let path = '/viajes';
 
@@ -58,6 +66,7 @@ export class ViajePage implements OnInit {
       }
     });
   }
+
 
   async presentActionSheet(viaje: Viaje) {
     const actionSheet = await this.actionSheetController.create({
