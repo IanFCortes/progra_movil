@@ -1,10 +1,14 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { RouteConfigLoadStart, Router } from '@angular/router';
-import { ActionSheetController, AlertController, IonButton, IonButtons, NavController } from '@ionic/angular';
+import { Router } from '@angular/router';
+import { ActionSheetController, AlertController, NavController } from '@ionic/angular';
 import { User } from 'firebase/auth';
 import { Viaje } from 'src/app/models/viaje.model';
 import { FirebaseService } from 'src/app/services/firebase.service';
 import { UtilsService } from 'src/app/services/utils.service';
+
+interface ViajeConUbicacion extends Viaje {
+  ubicacion?: { lat: number, lng: number };
+}
 
 @Component({
   selector: 'app-viaje',
@@ -12,6 +16,12 @@ import { UtilsService } from 'src/app/services/utils.service';
   styleUrls: ['./viaje.page.scss'],
 })
 export class ViajePage implements OnInit {
+  firebaseSvc = inject(FirebaseService);
+  utilsSvc = inject(UtilsService);
+
+  viajes: ViajeConUbicacion[] = [];
+  filteredViajes: ViajeConUbicacion[] = [];
+  user = {} as User;
 
   constructor(
     private actionSheetController: ActionSheetController,
@@ -19,103 +29,97 @@ export class ViajePage implements OnInit {
     private firebaseService: FirebaseService,
     private alertController: AlertController,
     private router: Router
-    ) { 
-    
-  }
-
-  firebaseSvc = inject(FirebaseService);
-  utilsSvc = inject(UtilsService);
-
-  viajes: Viaje[] = [];
-  filteredViajes: Viaje[] = [];
-  usuarioLogeado: User;
-  user = {} as User;
-
-  
+  ) {}
 
   ngOnInit() {
-    
     this.user = this.utilsSvc.getFromLocalStorage('user');
   }
+
   ionViewWillEnter() {
-    this.getViajes();
-    this.filteredViajes = this.viajes;
+    this.cargarViajesDesdeFirestore();
   }
   
-  guardarViajeEnLocalStorage(viajeId: string, ubicacion: {lat: number, lng: number}) {
-    const viaje = {
-      viajeId: viajeId,
-      email: this.user.email,
-      ubicacion: ubicacion
-    };
-  
-    localStorage.setItem(`viaje_${viajeId}`, JSON.stringify(viaje));
-  }
-  getViajes() {
-    let path = '/viajes';
+  cargarViajesDesdeFirestore() {
+    this.firebaseSvc.getCollectionData('viajes').subscribe(
+      (viajesFirestore: Viaje[]) => {
+        const viajesUsuario = viajesFirestore.filter(viaje => viaje.emailP === this.user.email);
 
-    let sub = this.firebaseSvc.getCollectionData(path).subscribe({
-      next: (res: any) => {
-        console.log(res);
-        this.viajes = res.filter(viaje => viaje.emailP === this.user.email && !viaje.completo);
+        const viajesConUbicacion = viajesUsuario.map(viaje => {
+          const localStorageKey = `viaje_${viaje.id}`;
+          const localStorageData = localStorage.getItem(localStorageKey);
+
+          if (localStorageData) {
+            try {
+              const storedData = JSON.parse(localStorageData);
+              return { ...viaje, ubicacion: storedData.ubicacion };
+            } catch (error) {
+              console.error(`Error parseando datos del localStorage para el viaje ${viaje.id}:`, error);
+            }
+          }
+          return { ...viaje };
+        });
+
+        this.viajes = viajesConUbicacion;
         this.filteredViajes = this.viajes;
-        sub.unsubscribe();
+        console.log('Viajes combinados con ubicación:', this.viajes);
       },
-      error: (error) => {
-        console.error(error);
+      error => {
+        console.error('Error al obtener los viajes desde Firestore:', error);
       }
-    });
+    );
   }
 
-
-  async presentActionSheet(viaje: Viaje) {
+  // Función para mostrar el ActionSheet y manejar la cancelación
+  async presentActionSheet(viaje: ViajeConUbicacion) {
     const actionSheet = await this.actionSheetController.create({
-      header: 'Esta seguro que desea eliminar?',
+      header: '¿Está seguro que desea eliminar este viaje?',
       buttons: [
         {
           text: 'Eliminar',
-          role: 'complete',
+          role: 'destructive',
           handler: async () => {
-            // Lógica para marcar el viaje como completo
             try {
+              // Actualizamos los cupos disponibles en Firestore
+              await this.firebaseService.disponible(viaje.id, viaje.disponibles + 1);
 
-              
-              
-              await this.firebaseService.disponible(viaje.id, viaje.disponibles+1);              
-              await this.firebaseService.emailPasajerp(viaje.id, "no hay");
-              
-              
-              
-              console.log('Completar viaje clicked', viaje);
+              // Eliminamos el email del pasajero en Firestore
+              await this.firebaseService.emailPasajerp(viaje.id, 'no hay');
+
+              // Eliminamos el viaje del localStorage
+              const viajeLocalStorageKey = `viaje_${viaje.id}_${this.user.email}`;
+              if (localStorage.getItem(viajeLocalStorageKey)) {
+                localStorage.removeItem(viajeLocalStorageKey);
+              }
+
+              // Eliminamos el viaje de las listas de la aplicación
               this.filteredViajes = this.filteredViajes.filter(v => v !== viaje);
-              
-              
+              this.viajes = this.viajes.filter(v => v !== viaje);
+
+              // Navegamos al home
               this.navCtrl.navigateRoot(['/main/home']);
-              
               this.utilsSvc.presentToast({
                 message: 'Viaje eliminado',
                 duration: 3500,
                 color: 'danger',
                 position: 'middle',
-                icon: 'checkmark-circle-outline'
-              })
-
+                icon: 'trash-bin-outline',
+              });
             } catch (error) {
-              console.error('Error al completar el viaje:', error);
+              console.error('Error al eliminar el viaje:', error);
             }
-          }
+          },
         },
         {
           text: 'Cancelar',
           role: 'cancel',
           handler: () => {
-            // Lógica al cancelar el Action Sheet
-            console.log('Cancelar clicked');
-          }
-        }
-      ]
+            console.log('Cancelado');
+          },
+        },
+      ],
     });
 
+    // Mostramos el ActionSheet
     await actionSheet.present();
   }
 }
